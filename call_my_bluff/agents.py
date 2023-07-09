@@ -32,23 +32,24 @@ class SimpleAgent:
         dice_value = np.random.randint(0, 5)
         num_dice_8 = int(0.8 * total_dice / 3)
         num_dice_8 = max([num_dice_8, 1])
-        bet_8_index = game.bet_to_bet_index((num_dice_8, dice_value))
+        bet_8 = game.Bet(num_dice=num_dice_8, dice_value=dice_value)
 
-        if observation.bet_index == game.NO_BET_INDEX:
-            action = game.Action(type=game.ActionType.BET, bet_index=bet_8_index)
-        elif observation.bet_index == game.MAX_BET_INDEX:
+        if observation.bet.index == game.NO_BET_INDEX:
+            action = game.Action(type=game.ActionType.BET, bet=bet_8)
+        # TODO: MAX_BET_INDEX is an off by one hour and it might occur in other places
+        elif observation.bet.index == game.MAX_BET_INDEX:
             action = game.Action(type=game.ActionType.CALL)
-        elif bet_8_index > observation.bet_index:
-            action = game.Action(game.ActionType.BET, bet_index=bet_8_index)
+        elif bet_8.index > observation.bet.index:
+            action = game.Action(game.ActionType.BET, bet=bet_8)
         else:
-            num_dice, dice_value = game.bet_index_to_bet(observation.bet_index + 1)
+            bet_plus_1 = game.Bet(index=observation.bet.index + 1)
+            num_dice = bet_plus_1.num_dice
+            dice_value = bet_plus_1.dice_value
             expected_dice = total_dice / 3
             if dice_value == game.STAR:
                 expected_dice = total_dice / 6
             if expected_dice >= num_dice:
-                action = game.Action(
-                    game.ActionType.BET, bet_index=observation.bet_index + 1
-                )
+                action = game.Action(game.ActionType.BET, bet=bet_plus_1)
             else:
                 action = game.Action(game.ActionType.CALL)
 
