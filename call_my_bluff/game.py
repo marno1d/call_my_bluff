@@ -184,19 +184,6 @@ def round_over(state: State) -> bool:
     return state.action_log[-1].type == ActionType.RESULT
 
 
-def player_turn(state: State) -> int:
-    """
-    Returns the current player.
-
-    Args:
-        state (State): The state of the game.
-
-    Returns:
-        int: The current player.
-    """
-    return state.player_curr
-
-
 def player_observation(state: State):
     """
     Returns the observation for the current player.
