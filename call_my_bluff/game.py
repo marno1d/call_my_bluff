@@ -131,10 +131,11 @@ def initialize_game(num_players: int) -> State:
     np.random.shuffle(turn_order)
     dice = [
         np.random.randint(low=0, high=6, size=num_dice[player]).tolist()
-        for player in turn_order
+        for player in range(num_players)
     ]
     dice_locked = [
-        np.zeros((num_dice[player]), dtype=bool).tolist() for player in turn_order
+        np.zeros((num_dice[player]), dtype=bool).tolist()
+        for player in range(num_players)
     ]
     action_log = []
     return State(
@@ -165,6 +166,35 @@ def game_over(state: State) -> bool:
         if state.num_dice[player] > 0:
             players_with_dice += 1
     return players_with_dice == 1
+
+
+def round_over(state: State) -> bool:
+    """
+    Determines if the round is over.
+
+    Args:
+        state (State): The state of the game.
+
+    Returns:
+        bool: True if the round is over, False otherwise.
+    """
+    if len(state.action_log) == 0:
+        return False
+
+    return state.action_log[-1].type == ActionType.RESULT
+
+
+def player_turn(state: State) -> int:
+    """
+    Returns the current player.
+
+    Args:
+        state (State): The state of the game.
+
+    Returns:
+        int: The current player.
+    """
+    return state.player_curr
 
 
 def player_observation(state: State):
@@ -251,21 +281,50 @@ def _call(state: State):
     # Determine who loses dice
     if dice_diff > 0:
         state = _lose_dice(state, state.player_curr, dice_diff)
-        result = Action(type=ActionType.RESULT, result=(state.player_curr, dice_diff))
+        result = Action(
+            type=ActionType.RESULT,
+            result=(state.player_curr, dice_diff, actual_num_dice, dice_value),
+        )
     elif dice_diff < 0:
         state = _lose_dice(state, state.player_prev, -dice_diff)
-        result = Action(type=ActionType.RESULT, result=(state.player_prev, -dice_diff))
+        result = Action(
+            type=ActionType.RESULT,
+            result=(state.player_prev, -dice_diff, actual_num_dice, dice_value),
+        )
     else:
-        for player in range(state.num_players):
+        for player in state.turn_order:
             if player != state.player_prev:
                 state = _lose_dice(state, player, 1)
-        result = Action(type=ActionType.RESULT, result=(-1, 1))
+        result = Action(
+            type=ActionType.RESULT, result=(-1, 1, actual_num_dice, dice_value)
+        )
 
     # Determine next player
     if dice_diff >= 0:
         state.player_curr = state.player_prev
     state.player_prev = None
     state.action_log.append(result)
+    return state
+
+
+def new_round(state: State) -> State:
+    """
+    Starts a new round.
+
+    Args:
+        state (State): The state of the game.
+
+    Returns:
+        State: The new state of the game.
+    """
+    state.bet_index = NO_BET_INDEX
+    state.player_prev = None
+    state.action_log = []
+    for player in range(state.num_players):
+        state.dice[player] = np.random.randint(0, 6, state.num_dice[player]).tolist()
+        state.dice_locked[player] = np.zeros(
+            state.num_dice[player], dtype=bool
+        ).tolist()
     return state
 
 
@@ -323,7 +382,24 @@ def render(state: State):
     Args:
         state (State): The state of the game.
     """
-    for action in state.action_log:
+    if len(state.action_log) == 1:
+        print("####################")
+        print("New round started.")
+        print(f"Players have {state.num_dice} dice.")
+    if state.action_log[-1].type == ActionType.RESULT:
+        indices = [-2, -1]
+    else:
+        indices = [-1]
+    for action in [state.action_log[i] for i in indices]:
+        if (
+            action.type == ActionType.REROLL_BET
+            or action.type == ActionType.BET
+            or action.type == ActionType.CALL
+        ):
+            print("--------------------")
+            print(
+                f"Player {action.player}'s turn, their dice are: {state.dice[action.player]}"
+            )
         if action.type == ActionType.REROLL_BET:
             locked_dice = []
             for dice_index, dice_value in enumerate(action.dice_to_lock):
@@ -339,7 +415,14 @@ def render(state: State):
         if action.type == ActionType.CALL:
             print(f"Player {action.player} called the bet.")
         if action.type == ActionType.RESULT:
+            print(f"There are actually {action.result[2]} {action.result[3]}s.")
             if action.result[0] == -1:
                 print("Everyone but the better loses a die.")
             else:
                 print(f"Player {action.result[0]} loses {action.result[1]} dice.")
+
+            if game_over(state):
+                print("!!!!!!!!!!!!!!!!!!!")
+                print("Game over!")
+                print(f"Player {state.player_curr} wins!")
+                print("!!!!!!!!!!!!!!!!!!!")
