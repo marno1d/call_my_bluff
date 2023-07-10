@@ -8,7 +8,7 @@ from enum import Enum
 import numpy as np
 
 NO_BET_INDEX = -1
-MAX_BET_INDEX = 110
+MAX_BET_INDEX = 109
 NUM_DICE = 5
 STAR = 5
 
@@ -51,7 +51,7 @@ class Bet:
             )
         else:
             raise ValueError("Invalid bet arguments")
-        if self._index < NO_BET_INDEX or self._index >= MAX_BET_INDEX:
+        if self._index < NO_BET_INDEX or self._index > MAX_BET_INDEX:
             raise ValueError("Invalid bet index")
 
     @property
