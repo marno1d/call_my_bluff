@@ -272,16 +272,16 @@ def _validate_action(state: State, action: Action):
             raise ValueError("Must specify a bet.")
         if action.bet.index <= state.bet.index:
             raise ValueError("Bet index must be higher than previous bet.")
-    elif action.type == ActionType.REROLL_BET:
-        if action.dice_to_lock is None:
-            raise ValueError("Must specify dice to lock.")
-        if len(action.dice_to_lock) != state.num_dice[state.player_curr]:
-            raise ValueError("Must specify dice to lock for all dice.")
-        for dice_index, dice_value in enumerate(action.dice_to_lock):
-            if dice_value and state.dice_locked[state.player_curr][dice_index]:
-                raise ValueError("Cannot lock dice that are already locked.")
-        if sum(action.dice_to_lock) == 0:
-            raise ValueError("Must lock at least one die.")
+        if action.type == ActionType.REROLL_BET:
+            if action.dice_to_lock is None:
+                raise ValueError("Must specify dice to lock.")
+            if len(action.dice_to_lock) != state.num_dice[state.player_curr]:
+                raise ValueError("Must specify dice to lock for all dice.")
+            for dice_index, dice_value in enumerate(action.dice_to_lock):
+                if dice_value and state.dice_locked[state.player_curr][dice_index]:
+                    raise ValueError("Cannot lock dice that are already locked.")
+            if sum(action.dice_to_lock) == 0:
+                raise ValueError("Must lock at least one die.")
     else:
         raise ValueError("Invalid action type.")
 
