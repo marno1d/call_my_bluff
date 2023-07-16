@@ -150,6 +150,8 @@ class Observation:
     """
 
     player: int
+    turn_order: List[int]
+    num_dice: List[int]
     bet: Bet
     unknown_dice: List[int]
     known_dice: List[List[int]]
@@ -255,6 +257,8 @@ def player_observation(state: State):
 
     return Observation(
         player=state.player_curr,
+        turn_order=state.turn_order,
+        num_dice=state.num_dice,
         bet=state.bet,
         unknown_dice=unknown_dice,
         known_dice=known_dice,
