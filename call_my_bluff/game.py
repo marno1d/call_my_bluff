@@ -359,7 +359,7 @@ def new_round(state: State) -> State:
 
 def _reroll(state: State, dice_to_lock: List[bool]):
     for dice_index, lock_dice in enumerate(dice_to_lock):
-        if not lock_dice:
+        if not lock_dice and not state.dice_locked[state.player_curr][dice_index]:
             state.dice[state.player_curr][dice_index] = np.random.randint(0, 6)
         else:
             state.dice_locked[state.player_curr][dice_index] = True
@@ -434,10 +434,11 @@ def render(state: State):
             for dice_index, dice_value in enumerate(action.dice_to_lock):
                 if dice_value:
                     locked_dice.append(state.dice[action.player][dice_index])
-            num_rerolled = state.num_dice[action.player] - len(locked_dice)
+            num_rerolled = state.num_dice[action.player] - state.dice_locked[
+                action.player
+            ].count(True)
             print(
-                f"Player {action.player} locked in {len(locked_dice)} dice: \
-                {locked_dice} and rerolled {num_rerolled} dice."
+                f"Player {action.player} locked in {len(locked_dice)} dice: {locked_dice} and rerolled {num_rerolled} dice."
             )
         if action.type == ActionType.BET or action.type == ActionType.REROLL_BET:
             print(
