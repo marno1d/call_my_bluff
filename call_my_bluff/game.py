@@ -114,6 +114,18 @@ class Bet:
         index = group * 11 + position
         return index
 
+    def __str__(self):
+        return f"[Dice Num: {self.dice_value}, Num Dice: {self.num_dice}, Dice Index: {self.index}]"
+
+    # pylint: disable=unused-argument, invalid-name
+    def _repr_pretty_(self, p, cycle):
+        p.text(
+            f"[Dice Num: {self.dice_value}, Num Dice: {self.num_dice}, Dice Index: {self.index}]"
+        )
+
+    def __repr__(self):
+        return f"Bet(num_dice={self.num_dice}, dice_value={self.dice_value})"
+
 
 @dataclass
 class Action:
@@ -441,9 +453,11 @@ def render(state: State):
             num_rerolled = state.num_dice[action.player] - state.dice_locked[
                 action.player
             ].count(True)
-            print(
-                f"Player {action.player} locked in {len(locked_dice)} dice: {locked_dice} and rerolled {num_rerolled} dice."
+            message = (
+                f"Player {action.player} locked in {len(locked_dice)} "
+                f"dice: {locked_dice} and rerolled {num_rerolled} dice."
             )
+            print(message)
         if action.type == ActionType.BET or action.type == ActionType.REROLL_BET:
             print(
                 f"Player {action.player} bet {action.bet.num_dice} {action.bet.dice_value}s"
