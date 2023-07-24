@@ -9,9 +9,7 @@ setup(
     author_email="10799696+marno1d@users.noreply.github.com",
     url="https://github.com/marno1d/call_my_bluff",
     packages=find_packages(),
-    install_requires=[
-        "numpy",
-    ],
+    install_requires=["numpy", "tqdm"],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
