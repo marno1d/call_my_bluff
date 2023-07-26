@@ -4,6 +4,7 @@ The game module contains the game state defintion and the game logic as function
 from typing import List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+import copy
 
 import numpy as np
 
@@ -267,7 +268,7 @@ def player_observation(state: State):
             unknown_dice.append(unknown)
             known_dice.append(known)
 
-    return Observation(
+    observation = Observation(
         player=state.player_curr,
         turn_order=state.turn_order,
         num_dice=state.num_dice,
@@ -277,6 +278,7 @@ def player_observation(state: State):
         player_locked_dice=state.dice_locked[state.player_curr],
         action_log=state.action_log,
     )
+    return copy.deepcopy(observation)
 
 
 def _validate_action(state: State, action: Action):
