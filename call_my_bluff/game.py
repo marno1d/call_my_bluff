@@ -422,6 +422,19 @@ def player_action(state: State, action: Action) -> State:
     return state
 
 
+def player_result(state: State) -> State:
+    """
+    Returns the state at the end of the round.
+
+    Args:
+        state (State): The state of the game.
+
+    Returns:
+        State: A copy of the state of the game.
+    """
+    return copy.deepcopy(state)
+
+
 def render(state: State):
     """
     Renders the current state of the game.
