@@ -53,7 +53,8 @@ class Bet:
         else:
             raise ValueError("Invalid bet arguments")
         if self._index < NO_BET_INDEX or self._index > MAX_BET_INDEX:
-            raise ValueError("Invalid bet index")
+            # raise ValueError("Invalid bet index")
+            print("Invalid bet index")
 
     @property
     def index(self):
